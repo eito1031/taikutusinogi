@@ -84,111 +84,14 @@
   <div id="rain-overlay" class="rain-overlay"></div>
 
   <!-- キャラクター表示 -->
-  <div class="char-area">
-    <svg id="char-sprite" class="char-sprite" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 560">
-      <!-- 全体グロー -->
-      <defs>
-        <radialGradient id="glow-grad" cx="50%" cy="60%" r="50%">
-          <stop offset="0%" stop-color="#9b4fbd" stop-opacity="0.2"/>
-          <stop offset="100%" stop-color="#9b4fbd" stop-opacity="0"/>
-        </radialGradient>
-        <filter id="soft-shadow">
-          <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00000088"/>
-        </filter>
-      </defs>
-      <ellipse cx="150" cy="560" rx="110" ry="12" fill="rgba(0,0,0,0.35)"/>
-
-      <!-- 脚 -->
-      <rect x="95"  y="390" width="48" height="165" rx="16" fill="#0d0d1e" filter="url(#soft-shadow)"/>
-      <rect x="157" y="390" width="48" height="165" rx="16" fill="#0d0d1e"/>
-
-      <!-- スーツ本体 -->
-      <path d="M55,205 Q60,400 65,555 L235,555 Q240,400 245,205 Q200,188 150,186 Q100,188 55,205Z"
-            fill="#14142a" filter="url(#soft-shadow)"/>
-
-      <!-- シャツ -->
-      <path d="M112,192 L150,238 L188,192 L178,182 L150,210 L122,182Z" fill="#e8e8f0"/>
-
-      <!-- スーツ左ラペル -->
-      <path d="M112,192 L88,268 L130,288 L150,238Z" fill="#1a1a36"/>
-      <!-- スーツ右ラペル -->
-      <path d="M188,192 L212,268 L170,288 L150,238Z" fill="#1a1a36"/>
-
-      <!-- タイ -->
-      <path d="M143,206 L157,206 L162,290 L150,308 L138,290Z" fill="#7b2d8b"/>
-      <polygon points="143,206 157,206 153,218 150,215 147,218" fill="#5a1a6a"/>
-
-      <!-- 左腕 -->
-      <rect x="28" y="210" width="50" height="200" rx="22" fill="#14142a"/>
-      <!-- 右腕 -->
-      <rect x="222" y="210" width="50" height="200" rx="22" fill="#14142a"/>
-
-      <!-- 袖口 左 -->
-      <rect x="31" y="392" width="44" height="18" rx="9" fill="#1c1c3a"/>
-      <!-- 袖口 右 -->
-      <rect x="225" y="392" width="44" height="18" rx="9" fill="#1c1c3a"/>
-
-      <!-- 左手 -->
-      <ellipse cx="53"  cy="422" rx="24" ry="18" fill="#f0d0b0"/>
-      <!-- 右手 -->
-      <ellipse cx="247" cy="422" rx="24" ry="18" fill="#f0d0b0"/>
-
-      <!-- ポケットチーフ -->
-      <path d="M76,255 L92,260 L90,275 L74,270Z" fill="#9b4fbd" opacity="0.9"/>
-
-      <!-- 首 -->
-      <rect x="132" y="165" width="36" height="32" rx="10" fill="#f0d0b0"/>
-
-      <!-- 頭（ベース） -->
-      <ellipse cx="150" cy="120" rx="62" ry="68" fill="#f0d0b0"/>
-
-      <!-- 髪（後ろ） -->
-      <ellipse cx="150" cy="72" rx="66" ry="46" fill="#1a1210"/>
-      <!-- 髪（横） -->
-      <ellipse cx="88"  cy="118" rx="22" ry="35" fill="#1a1210"/>
-      <ellipse cx="212" cy="118" rx="22" ry="35" fill="#1a1210"/>
-
-      <!-- 髪（前・前髪） -->
-      <path d="M88,95 Q100,48 150,44 Q200,48 212,95
-               Q196,75 182,82 Q166,58 150,76 Q134,58 118,82 Q104,75 88,95Z"
-            fill="#1a1210"/>
-      <path d="M118,82 Q126,98 136,90" stroke="#1a1210" stroke-width="10" fill="none" stroke-linecap="round"/>
-      <path d="M182,82 Q174,98 164,90" stroke="#1a1210" stroke-width="10" fill="none" stroke-linecap="round"/>
-
-      <!-- 耳 -->
-      <ellipse cx="88"  cy="128" rx="12" ry="16" fill="#ead0a8"/>
-      <ellipse cx="212" cy="128" rx="12" ry="16" fill="#ead0a8"/>
-
-      <!-- 眉毛 -->
-      <path id="brow-l" d="M106,104 Q122,97 136,102" stroke="#1a1210" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-      <path id="brow-r" d="M164,102 Q178,97 194,104" stroke="#1a1210" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-
-      <!-- 目（左） -->
-      <ellipse cx="121" cy="122" rx="13" ry="12" fill="#0f0c0a"/>
-      <ellipse cx="121" cy="121" rx="7"  ry="6"  fill="#2e1c3a"/>
-      <circle  cx="125" cy="117" r="4"   fill="white" opacity="0.85"/>
-      <circle  cx="123" cy="119" r="1.5" fill="white" opacity="0.5"/>
-      <!-- 瞼ライン左 -->
-      <path d="M108,116 Q121,109 134,116" stroke="#1a1210" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-
-      <!-- 目（右） -->
-      <ellipse cx="179" cy="122" rx="13" ry="12" fill="#0f0c0a"/>
-      <ellipse cx="179" cy="121" rx="7"  ry="6"  fill="#2e1c3a"/>
-      <circle  cx="183" cy="117" r="4"   fill="white" opacity="0.85"/>
-      <circle  cx="181" cy="119" r="1.5" fill="white" opacity="0.5"/>
-      <!-- 瞼ライン右 -->
-      <path d="M166,116 Q179,109 192,116" stroke="#1a1210" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-
-      <!-- 鼻 -->
-      <path d="M146,148 Q150,156 154,148" stroke="#c4a080" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-
-      <!-- 口（ニヤリ） -->
-      <path id="mouth" d="M132,167 Q147,176 164,168"
-            stroke="#9a6050" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-
-      <!-- 全体グロー -->
-      <ellipse cx="150" cy="350" rx="150" ry="280" fill="url(#glow-grad)"/>
-    </svg>
+  <div class="char-area" id="char-area">
+    <img
+      id="char-sprite"
+      class="char-sprite"
+      src="./chara_normal.png"
+      alt=""
+      draggable="false"
+    >
   </div><!-- /char-area -->
 
   <!-- コントロールボタン -->

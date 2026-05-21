@@ -492,24 +492,79 @@ function changeBg(bgClass) {
 }
 
 /* --------------------------------------------------
-   キャラクター表情更新
+   キャラクター表情更新（PNG対応）
+   ファイル命名規則:
+     chara_normal.png    通常
+     chara_happy.png     笑顔・嬉しい
+     chara_surprised.png 驚き
+     chara_tired.png     消耗・落ち込み
+     chara_intense.png   鋭い目・緊迫
 -------------------------------------------------- */
-function updateCharExpression(speaker, text) {
-  const sprite = $('char-sprite');
-  if (!sprite || speaker !== 'えいと') return;
 
-  /* テキストの感情キーワードで表情を判定 */
-  sprite.classList.remove('expr-happy', 'expr-surprised', 'expr-tired', 'expr-intense');
+/* 事前にロード済みか確認したPNGセット */
+const _pngCache = {};
 
-  if (/笑|あはは|ウケる|最高|頼もし|嬉し/.test(text)) {
-    sprite.classList.add('expr-happy');
-  } else if (/！|驚|え、|うわ|マジか/.test(text)) {
-    sprite.classList.add('expr-surprised');
-  } else if (/辛|疲|ダル|涙|消えればいい|ボロボロ|限界/.test(text)) {
-    sprite.classList.add('expr-tired');
-  } else if (/ゾクゾク|逃げ場|縛|怖|特級|降参/.test(text)) {
-    sprite.classList.add('expr-intense');
+function _resolveExpr(text) {
+  if (/笑|あはは|ウケる|最高|頼もし|嬉し|グッとくる|ツボ/.test(text)) return 'happy';
+  if (/うわ|マジか|え、お|え、あ|ちょ、/.test(text))                 return 'surprised';
+  if (/辛|疲|ダル|涙|消えればいい|ボロボロ|限界|泣きそう/.test(text)) return 'tired';
+  if (/ゾクゾク|逃げ場|縛|特級|降参|一生/.test(text))               return 'intense';
+  return 'normal';
+}
+
+function updateCharExpression(speaker, text, forceExpr) {
+  const img = $('char-sprite');
+  if (!img) return;
+
+  /* えいと以外のときはキャラを非表示 */
+  if (speaker !== 'えいと') {
+    img.classList.add('hidden');
+    return;
   }
+  img.classList.remove('hidden');
+
+  const expr  = forceExpr || _resolveExpr(text);
+  const src   = `./chara_${expr}.png`;
+
+  /* 同じ画像なら何もしない */
+  if (img.dataset.currentExpr === expr) return;
+
+  /* PNG が存在するか確認してから切り替え */
+  if (_pngCache[src] === false) {
+    /* このexprのPNGがない場合 → normalにフォールバック */
+    _switchSprite(img, './chara_normal.png', 'normal');
+    return;
+  }
+
+  const probe = new Image();
+  probe.onload = () => {
+    _pngCache[src] = true;
+    _switchSprite(img, src, expr);
+  };
+  probe.onerror = () => {
+    _pngCache[src] = false;
+    /* expr固有のPNGがなければnormalを試みる */
+    if (expr !== 'normal') {
+      updateCharExpression(speaker, text, 'normal');
+    } else {
+      /* chara_normal.png すら無ければ非表示 */
+      img.classList.add('hidden');
+    }
+  };
+  probe.src = src;
+}
+
+function _switchSprite(img, src, expr) {
+  /* フェードアウト → src切り替え → フェードイン */
+  img.classList.add('fading');
+  setTimeout(() => {
+    img.src = src;
+    img.dataset.currentExpr = expr;
+    /* 表情クラスを付け替え */
+    img.classList.remove('expr-happy', 'expr-surprised', 'expr-tired', 'expr-intense');
+    if (expr !== 'normal') img.classList.add(`expr-${expr}`);
+    img.classList.remove('fading');
+  }, 180);
 }
 
 /* --------------------------------------------------
@@ -753,6 +808,19 @@ function escHtml(str) {
 }
 
 /* --------------------------------------------------
+   キャラ画像の初期チェック
+   chara_normal.png が存在しない場合は img を隠す
+-------------------------------------------------- */
+function initCharSprite() {
+  const img = $('char-sprite');
+  if (!img) return;
+  img.classList.add('hidden'); /* ロードされるまで非表示 */
+  img.onload  = () => { img.classList.remove('hidden'); img.dataset.currentExpr = 'normal'; };
+  img.onerror = () => { img.classList.add('hidden'); _pngCache['./chara_normal.png'] = false; };
+  img.src = './chara_normal.png';
+}
+
+/* --------------------------------------------------
    起動
 -------------------------------------------------- */
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => { initCharSprite(); init(); });

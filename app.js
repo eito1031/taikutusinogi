@@ -822,9 +822,20 @@ function escHtml(str) {
 function initCharSprite() {
   const img = $('char-sprite');
   if (!img) return;
-  img.classList.add('hidden'); /* ロードされるまで非表示 */
-  img.onload  = () => { img.classList.remove('hidden'); img.dataset.currentExpr = 'normal'; };
-  img.onerror = () => { img.classList.add('hidden'); _pngCache['./chara_normal.PNG'] = false; };
+  img.classList.add('hidden');
+  img.onload = () => {
+    img.onload = null;
+    img.onerror = null;
+    _pngCache['./chara_normal.PNG'] = true;
+    img.classList.remove('hidden');
+    img.dataset.currentExpr = 'normal';
+  };
+  img.onerror = () => {
+    img.onload = null;
+    img.onerror = null;
+    img.classList.add('hidden');
+    _pngCache['./chara_normal.PNG'] = false;
+  };
   img.src = './chara_normal.PNG';
 }
 

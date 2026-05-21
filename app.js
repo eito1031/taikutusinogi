@@ -192,7 +192,7 @@ function processNode(nodeId) {
 
     case 'dialogue':
       showMessage(node.speaker, node.text, node.speakerStyle || 'dialogue', node.next);
-      updateCharExpression(node.speaker, node.text);
+      updateCharExpression(node.speaker, node.text, node.expression);
       break;
 
     case 'choice':
@@ -398,7 +398,7 @@ function makeChoice(choice) {
     const speaker = choice.responseSpeaker || null;
     showMessage(speaker, choice.responseText, style, choice.next);
     if (speaker !== null && speaker !== '私') {
-      updateCharExpression(speaker, choice.responseText);
+      updateCharExpression(speaker, choice.responseText, choice.responseExpression);
     }
   } else {
     processNode(choice.next);

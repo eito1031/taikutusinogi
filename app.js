@@ -606,9 +606,9 @@ function calculateEnding() {
   const endings = GS.scenario.endings;
   let key = 'bad';
 
-  if (GS.score >= 57)      key = 'happy';
-  else if (GS.score >= 48) key = 'good';
-  else if (GS.score >= 38) key = 'normal';
+  if (GS.score >= 54)      key = 'happy';
+  else if (GS.score >= 44) key = 'good';
+  else if (GS.score >= 37) key = 'normal';
 
   const ending = endings[key];
 

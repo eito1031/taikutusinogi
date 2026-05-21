@@ -8,16 +8,18 @@ const GS = {
   playerName: '',
   score: 0,
   currentNode: 's1_n1',
-  outfitChoice: 'B',    /* choice 1-2 の結果を保存 */
+  outfitChoice: 'B',
   choiceHistory: [],
   textLog: [],
   isTyping: false,
   autoMode: false,
   skipMode: false,
-  autoTimer: null,
+  autoTimer: null,      /* オート送り用タイマー */
+  _typingTimer: null,   /* タイピング専用タイマー（autoTimerと分離） */
+  _cancelTyping: null,  /* タイピングキャンセル関数 */
   scenario: null,
   currentBg: 'bg-bedroom',
-  pendingNext: null,    /* タップ待ちの次ノードID */
+  pendingNext: null,
 };
 
 /* --------------------------------------------------
@@ -163,6 +165,7 @@ function startNewGame() {
   GS.autoMode = false;
   GS.skipMode = false;
   GS.pendingNext = null;
+  _stopTyping();
   clearTimeout(GS.autoTimer);
 
   updateScoreBar();
@@ -260,103 +263,99 @@ function showMessage(speaker, text, style, nextNodeId) {
   /* テキストログに追加 */
   GS.textLog.push({ speaker: speaker || 'ナレーター', text: processed });
 
-  /* タイピング表示 or スキップ */
-  if (GS.skipMode) {
-    textEl.textContent = processed;
-    textEl.innerHTML = processed.replace(/\n/g, '<br>') + '<span class="msg-cursor"></span>';
-    GS.isTyping = false;
+  /* タイピング表示 */
+  typeText(textEl, processed, () => {
     nextArrow.classList.add('visible');
     scheduleAuto();
-  } else {
-    typeText(textEl, processed, () => {
-      nextArrow.classList.add('visible');
-      scheduleAuto();
-    });
-  }
+  });
 }
 
-/* タイピングエフェクト */
+/* --------------------------------------------------
+   タイピングエフェクト（タイピング用タイマーを autoTimer と分離）
+-------------------------------------------------- */
 function typeText(el, text, onDone) {
+  /* 前回のタイピングを強制キャンセル */
+  _stopTyping();
+
   GS.isTyping = true;
-  el.textContent = '';
+  el.dataset.full = text; /* 全文保存（途中タップ時の即時完了に使用） */
+  el.innerHTML = '';
+
   let i = 0;
+  let cancelled = false;
   const cursor = document.createElement('span');
   cursor.className = 'msg-cursor';
 
+  GS._cancelTyping = () => { cancelled = true; };
+
+  function _finish() {
+    el.innerHTML = text.replace(/\n/g, '<br>');
+    el.appendChild(cursor);
+    GS.isTyping = false;
+    GS._cancelTyping = null;
+    if (onDone) onDone();
+  }
+
+  /* スキップモードなら即時完了 */
+  if (GS.skipMode) { _finish(); return; }
+
   function tick() {
-    if (i >= text.length) {
-      /* 完了 */
-      el.innerHTML = text.replace(/\n/g, '<br>');
-      el.appendChild(cursor);
-      GS.isTyping = false;
-      if (onDone) onDone();
-      return;
-    }
+    if (cancelled) return;
+    if (GS.skipMode) { _finish(); return; }
+    if (i >= text.length) { _finish(); return; }
 
     const ch = text[i++];
     el.innerHTML = text.slice(0, i).replace(/\n/g, '<br>');
     el.appendChild(cursor);
 
-    /* 「…」「。」「、」は少し長めに */
     let delay = typingSpeed;
-    if (ch === '…' || ch === '。') delay = typingSpeed * 3;
-    else if (ch === '、') delay = typingSpeed * 1.5;
-    else if (ch === '\n') delay = typingSpeed * 2;
+    if (ch === '…' || ch === '。') delay = typingSpeed * 3.5;
+    else if (ch === '、')           delay = typingSpeed * 1.8;
+    else if (ch === '\n')           delay = typingSpeed * 2.5;
 
-    if (GS.skipMode) {
-      el.innerHTML = text.replace(/\n/g, '<br>');
-      el.appendChild(cursor);
-      GS.isTyping = false;
-      if (onDone) onDone();
-      return;
-    }
-
-    GS.autoTimer = setTimeout(tick, delay);
+    GS._typingTimer = setTimeout(tick, delay);
   }
 
   tick();
+}
+
+/* タイピングを完全停止するヘルパー */
+function _stopTyping() {
+  if (GS._cancelTyping) GS._cancelTyping();
+  clearTimeout(GS._typingTimer);
+  GS._cancelTyping = null;
+  GS._typingTimer  = null;
+  GS.isTyping = false;
 }
 
 /* --------------------------------------------------
    タップ送り
 -------------------------------------------------- */
 function onMsgTap() {
-  /* タイピング中 → スキップして全文表示 */
-  if (GS.isTyping) {
-    GS.skipMode = false;  /* 一時的にスキップ終了 */
-    const textEl = $('msg-text');
-    clearTimeout(GS.autoTimer);
-
-    /* pendingNext の前テキストを強制完了 */
-    const currentText = textEl.textContent;
-    const cursor = document.createElement('span');
-    cursor.className = 'msg-cursor';
-
-    /* 現在のメッセージを最後まで一気に表示 */
-    GS.isTyping = false;
-    /* タイピング中に全文を求める：直前のtypeText呼び出しのtextを再利用する代わりに
-       テキストフィールドのデータ属性から取得 */
-    const fullText = textEl.dataset.full || textEl.textContent;
-    textEl.innerHTML = fullText.replace(/\n/g, '<br>');
-    textEl.appendChild(cursor);
-    $('next-indicator').classList.add('visible');
-    scheduleAuto();
-    return;
-  }
-
   /* 選択肢表示中は無視 */
   if ($('choice-overlay').classList.contains('visible')) return;
 
-  /* 次のノードへ */
+  /* タイピング中 → 全文を即時表示してタップ待ち状態へ */
+  if (GS.isTyping) {
+    _stopTyping();
+    const textEl  = $('msg-text');
+    const fullText = textEl.dataset.full || textEl.innerHTML;
+    const cursor   = document.createElement('span');
+    cursor.className = 'msg-cursor';
+    textEl.innerHTML = fullText.replace(/\n/g, '<br>');
+    textEl.appendChild(cursor);
+    $('next-indicator').classList.add('visible');
+    return; /* 次のタップで進む */
+  }
+
+  /* タイピング完了後 → 次のノードへ進む */
   clearTimeout(GS.autoTimer);
-  if (GS.pendingNext) {
-    processNode(GS.pendingNext);
+  const next = GS.pendingNext;
+  if (next) {
     GS.pendingNext = null;
+    processNode(next);
   }
 }
-
-/* 全文テキストをdata属性に保存するためtypeText改修 */
-const origTypeText = typeText;
 
 /* --------------------------------------------------
    オート / スキップ
@@ -370,8 +369,17 @@ function toggleAuto() {
 function toggleSkip() {
   GS.skipMode = !GS.skipMode;
   $('btn-skip').classList.toggle('active', GS.skipMode);
+  /* スキップ ON になった瞬間にタイピング中なら即完了させる */
   if (GS.skipMode && GS.isTyping) {
-    /* 強制スキップ：現在のタイピングが次のtickでスキップされる */
+    _stopTyping();
+    const textEl   = $('msg-text');
+    const fullText  = textEl.dataset.full || '';
+    const cursor    = document.createElement('span');
+    cursor.className = 'msg-cursor';
+    textEl.innerHTML = fullText.replace(/\n/g, '<br>');
+    textEl.appendChild(cursor);
+    $('next-indicator').classList.add('visible');
+    scheduleAuto();
   }
 }
 
@@ -398,7 +406,7 @@ function scheduleAuto() {
    選択肢表示
 -------------------------------------------------- */
 function showChoices(node) {
-  GS.isTyping = false;
+  _stopTyping();
   GS.pendingNext = null;
   clearTimeout(GS.autoTimer);
 

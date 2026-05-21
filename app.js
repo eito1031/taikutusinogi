@@ -582,7 +582,8 @@ function updateScoreBar() {
   const gaugeEl = $('hearts-gauge');
   if (!gaugeEl) return;
 
-  const filled = Math.min(Math.floor(GS.score / 12), 5);
+  const thresholds = [10, 19, 28, 38, 50];
+  const filled = thresholds.filter(t => GS.score >= t).length;
   const hearts = gaugeEl.querySelectorAll('.heart-icon');
 
   hearts.forEach((h, i) => {

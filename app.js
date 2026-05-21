@@ -502,7 +502,7 @@ function changeBg(bgClass) {
 /* --------------------------------------------------
    キャラクター表情更新（PNG対応）
    ファイル命名規則:
-     chara_normal.png    通常
+     chara_normal.PNG    通常
      chara_happy.png     笑顔・嬉しい
      chara_surprised.png 驚き
      chara_tired.png     消耗・落ち込み
@@ -532,7 +532,7 @@ function updateCharExpression(speaker, text, forceExpr) {
   img.classList.remove('hidden');
 
   const expr  = forceExpr || _resolveExpr(text);
-  const src   = `./chara_${expr}.png`;
+  const src   = `./chara_${expr}.PNG`;
 
   /* 同じ画像なら何もしない */
   if (img.dataset.currentExpr === expr) return;
@@ -540,7 +540,7 @@ function updateCharExpression(speaker, text, forceExpr) {
   /* PNG が存在するか確認してから切り替え */
   if (_pngCache[src] === false) {
     /* このexprのPNGがない場合 → normalにフォールバック */
-    _switchSprite(img, './chara_normal.png', 'normal');
+    _switchSprite(img, './chara_normal.PNG', 'normal');
     return;
   }
 
@@ -555,7 +555,7 @@ function updateCharExpression(speaker, text, forceExpr) {
     if (expr !== 'normal') {
       updateCharExpression(speaker, text, 'normal');
     } else {
-      /* chara_normal.png すら無ければ非表示 */
+      /* chara_normal.PNG すら無ければ非表示 */
       img.classList.add('hidden');
     }
   };
@@ -817,15 +817,15 @@ function escHtml(str) {
 
 /* --------------------------------------------------
    キャラ画像の初期チェック
-   chara_normal.png が存在しない場合は img を隠す
+   chara_normal.PNG が存在しない場合は img を隠す
 -------------------------------------------------- */
 function initCharSprite() {
   const img = $('char-sprite');
   if (!img) return;
   img.classList.add('hidden'); /* ロードされるまで非表示 */
   img.onload  = () => { img.classList.remove('hidden'); img.dataset.currentExpr = 'normal'; };
-  img.onerror = () => { img.classList.add('hidden'); _pngCache['./chara_normal.png'] = false; };
-  img.src = './chara_normal.png';
+  img.onerror = () => { img.classList.add('hidden'); _pngCache['./chara_normal.PNG'] = false; };
+  img.src = './chara_normal.PNG';
 }
 
 /* --------------------------------------------------

@@ -12,11 +12,8 @@ const GS = {
   choiceHistory: [],
   textLog: [],
   isTyping: false,
-  autoMode: false,
-  skipMode: false,
-  autoTimer: null,      /* オート送り用タイマー */
-  _typingTimer: null,   /* タイピング専用タイマー（autoTimerと分離） */
-  _cancelTyping: null,  /* タイピングキャンセル関数 */
+  _typingTimer: null,
+  _cancelTyping: null,
   scenario: null,
   currentBg: 'bg-bedroom',
   pendingNext: null,
@@ -76,9 +73,7 @@ function showScreen(name) {
 }
 
 function onScreenShown(name) {
-  if (name === 'save')   renderSaveSlots('save');
-  if (name === 'load')   renderSaveSlots('load');
-  if (name === 'log')    renderLog();
+  if (name === 'log')      renderLog();
   if (name === 'settings') updateSettingsUI();
 }
 
@@ -88,7 +83,6 @@ function onScreenShown(name) {
 function bindEvents() {
   /* タイトル */
   $('btn-new-game').addEventListener('click', startNewGame);
-  $('btn-title-load').addEventListener('click', () => showScreen('load'));
   $('btn-title-settings').addEventListener('click', () => showScreen('settings'));
 
   /* 名前入力 */
@@ -99,14 +93,11 @@ function bindEvents() {
   $('msg-box').addEventListener('click', onMsgTap);
 
   /* コントロールボタン */
-  $('btn-auto').addEventListener('click', toggleAuto);
-  $('btn-skip').addEventListener('click', toggleSkip);
   $('btn-log').addEventListener('click', () => showScreen('log'));
-  $('btn-save').addEventListener('click', () => { pauseAuto(); showScreen('save'); });
-  $('btn-menu').addEventListener('click', () => { pauseAuto(); showScreen('settings'); });
+  $('btn-menu').addEventListener('click', () => showScreen('settings'));
 
   /* サブ画面の戻るボタン */
-  ['save','load','log','settings'].forEach(name => {
+  ['log', 'settings'].forEach(name => {
     const btn = $(`btn-back-${name}`);
     if (btn) btn.addEventListener('click', () => showScreen('game'));
   });
@@ -162,15 +153,10 @@ function startNewGame() {
   GS.outfitChoice = 'B';
   GS.choiceHistory = [];
   GS.textLog = [];
-  GS.autoMode = false;
-  GS.skipMode = false;
   GS.pendingNext = null;
   _stopTyping();
-  clearTimeout(GS.autoTimer);
 
   updateScoreBar();
-  $('btn-auto').classList.remove('active');
-  $('btn-skip').classList.remove('active');
   $('choice-overlay').classList.remove('visible');
 
   showScreen('game');
@@ -189,7 +175,6 @@ function processNode(nodeId) {
   if (!node) { console.warn('Node not found:', nodeId); return; }
 
   GS.currentNode = nodeId;
-  clearTimeout(GS.autoTimer);
 
   switch (node.type) {
     case 'bg':
@@ -266,19 +251,17 @@ function showMessage(speaker, text, style, nextNodeId) {
   /* タイピング表示 */
   typeText(textEl, processed, () => {
     nextArrow.classList.add('visible');
-    scheduleAuto();
   });
 }
 
 /* --------------------------------------------------
-   タイピングエフェクト（タイピング用タイマーを autoTimer と分離）
+   タイピングエフェクト
 -------------------------------------------------- */
 function typeText(el, text, onDone) {
-  /* 前回のタイピングを強制キャンセル */
   _stopTyping();
 
   GS.isTyping = true;
-  el.dataset.full = text; /* 全文保存（途中タップ時の即時完了に使用） */
+  el.dataset.full = text;
   el.innerHTML = '';
 
   let i = 0;
@@ -296,12 +279,8 @@ function typeText(el, text, onDone) {
     if (onDone) onDone();
   }
 
-  /* スキップモードなら即時完了 */
-  if (GS.skipMode) { _finish(); return; }
-
   function tick() {
     if (cancelled) return;
-    if (GS.skipMode) { _finish(); return; }
     if (i >= text.length) { _finish(); return; }
 
     const ch = text[i++];
@@ -349,7 +328,6 @@ function onMsgTap() {
   }
 
   /* タイピング完了後 → 次のノードへ進む */
-  clearTimeout(GS.autoTimer);
   const next = GS.pendingNext;
   if (next) {
     GS.pendingNext = null;
@@ -358,61 +336,11 @@ function onMsgTap() {
 }
 
 /* --------------------------------------------------
-   オート / スキップ
--------------------------------------------------- */
-function toggleAuto() {
-  GS.autoMode = !GS.autoMode;
-  $('btn-auto').classList.toggle('active', GS.autoMode);
-  if (GS.autoMode && !GS.isTyping) scheduleAuto();
-}
-
-function toggleSkip() {
-  GS.skipMode = !GS.skipMode;
-  $('btn-skip').classList.toggle('active', GS.skipMode);
-  if (GS.skipMode) {
-    /* タイピング中なら即完了させる */
-    if (GS.isTyping) {
-      _stopTyping();
-      const textEl  = $('msg-text');
-      const fullText = textEl.dataset.full || '';
-      const cursor  = document.createElement('span');
-      cursor.className = 'msg-cursor';
-      textEl.innerHTML = fullText.replace(/\n/g, '<br>');
-      textEl.appendChild(cursor);
-      $('next-indicator').classList.add('visible');
-    }
-    /* タイピング済みでタップ待ち中でも必ず自動送りを開始 */
-    scheduleAuto();
-  }
-}
-
-function pauseAuto() {
-  GS.autoMode = false;
-  $('btn-auto').classList.remove('active');
-  clearTimeout(GS.autoTimer);
-}
-
-function scheduleAuto() {
-  if (!GS.autoMode && !GS.skipMode) return;
-  clearTimeout(GS.autoTimer);
-  const delay = GS.skipMode ? 50 : 2200;
-  GS.autoTimer = setTimeout(() => {
-    if ($('choice-overlay').classList.contains('visible')) return;
-    const next = GS.pendingNext;
-    if (next) {
-      GS.pendingNext = null; // processNode より先にクリアする
-      processNode(next);
-    }
-  }, delay);
-}
-
-/* --------------------------------------------------
    選択肢表示
 -------------------------------------------------- */
 function showChoices(node) {
   _stopTyping();
   GS.pendingNext = null;
-  clearTimeout(GS.autoTimer);
 
   const overlay  = $('choice-overlay');
   const titleEl  = $('choice-title');
@@ -640,99 +568,6 @@ function typeEndingText(el, text) {
     setTimeout(tick, 18);
   }
   tick();
-}
-
-/* --------------------------------------------------
-   セーブ / ロード
--------------------------------------------------- */
-const SAVE_KEY = 'taikutsu_saves';
-
-function getSaves() {
-  try {
-    return JSON.parse(localStorage.getItem(SAVE_KEY)) || [null, null, null];
-  } catch { return [null, null, null]; }
-}
-
-function saveGame(slot) {
-  const saves = getSaves();
-  saves[slot] = {
-    date: new Date().toLocaleString('ja-JP'),
-    node: GS.currentNode,
-    score: GS.score,
-    outfitChoice: GS.outfitChoice,
-    choiceHistory: [...GS.choiceHistory],
-    textLog: GS.textLog.slice(-30),
-    playerName: GS.playerName,
-    bg: GS.currentBg,
-    sceneLabel: getCurrentSceneLabel(),
-  };
-  localStorage.setItem(SAVE_KEY, JSON.stringify(saves));
-  renderSaveSlots('save');
-  showToast('セーブしました');
-}
-
-function loadGame(slot) {
-  const saves = getSaves();
-  const data = saves[slot];
-  if (!data) return;
-
-  GS.playerName    = data.playerName || GS.playerName;
-  GS.currentNode   = data.node;
-  GS.score         = data.score;
-  GS.outfitChoice  = data.outfitChoice || 'B';
-  GS.choiceHistory = data.choiceHistory || [];
-  GS.textLog       = data.textLog || [];
-  GS.autoMode      = false;
-  GS.skipMode      = false;
-  GS.pendingNext   = null;
-  clearTimeout(GS.autoTimer);
-
-  changeBg(data.bg || 'bg-bedroom');
-  updateScoreBar();
-
-  showScreen('game');
-  setTimeout(() => processNode(GS.currentNode), 300);
-}
-
-function getCurrentSceneLabel() {
-  const id = GS.currentNode || '';
-  if (id.startsWith('s1')) return 'Scene 1：画面越しの違和感';
-  if (id.startsWith('s2')) return 'Scene 2：目が笑っていない男';
-  if (id.startsWith('s3')) return 'Scene 3：退屈させない挑戦';
-  if (id.startsWith('s4')) return 'Scene 4：二度目の約束';
-  if (id.startsWith('s5')) return 'Scene 5：崩れる仮面';
-  if (id.startsWith('s6')) return 'Scene 6：夜の電話';
-  if (id.startsWith('s7')) return 'Scene 7：踏み越えられた境界線';
-  if (id.startsWith('s8')) return 'Scene 8：悪意なき拒絶';
-  if (id.startsWith('s9')) return 'Scene 9：本音のぶつかり合い';
-  if (id.startsWith('s10')) return 'Scene 10：お前が飽きさせない限り';
-  return '─';
-}
-
-function renderSaveSlots(mode) {
-  const saves = getSaves();
-  const container = $(mode === 'save' ? 'save-slot-container' : 'load-slot-container');
-  if (!container) return;
-  container.innerHTML = '';
-
-  saves.forEach((save, i) => {
-    const slot = document.createElement('div');
-    slot.className = 'save-slot' + (save ? '' : ' empty');
-    slot.innerHTML = `
-      <div class="save-slot-num">${i + 1}</div>
-      <div class="save-slot-info">
-        <div class="save-slot-date">${save ? save.date : '─'}</div>
-        <div class="save-slot-scene">${save ? save.sceneLabel : '空きスロット'}</div>
-        ${save ? `<div class="save-slot-score">Score: ${save.score} / 60</div>` : ''}
-      </div>`;
-
-    if (mode === 'save') {
-      slot.addEventListener('click', () => saveGame(i));
-    } else {
-      if (save) slot.addEventListener('click', () => { loadGame(i); });
-    }
-    container.appendChild(slot);
-  });
 }
 
 /* --------------------------------------------------

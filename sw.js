@@ -1,11 +1,19 @@
 /* Service Worker - 退屈しのぎの飼育論 */
-const CACHE_NAME = 'taikutusinogi-v1';
+const CACHE_NAME = 'taikutusinogi-v2';
 const ASSETS = [
+  './',
   './index.html',
   './style.css',
   './app.js',
   './scenario.json',
-  './manifest.json'
+  './manifest.json',
+  './chara_normal.PNG',
+  './chara_happy.PNG',
+  './chara_tired.PNG',
+  './chara_surprised.PNG',
+  './chara_intense.PNG',
+  './icon-192.svg',
+  './icon-512.svg',
 ];
 
 self.addEventListener('install', event => {

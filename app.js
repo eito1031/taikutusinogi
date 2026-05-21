@@ -477,9 +477,8 @@ function makeChoice(choice) {
 -------------------------------------------------- */
 function processText(text) {
   if (!text) return '';
-  const name = GS.playerName || 'お姉さん';
   if (!GS.playerName) return text;
-  return text.replace(/お姉さん(?!系)/g, `${name}ちゃん`);
+  return text.replace(/お姉さん(?!系)/g, `${GS.playerName}ちゃん`);
 }
 
 /* --------------------------------------------------

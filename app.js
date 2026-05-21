@@ -369,16 +369,19 @@ function toggleAuto() {
 function toggleSkip() {
   GS.skipMode = !GS.skipMode;
   $('btn-skip').classList.toggle('active', GS.skipMode);
-  /* スキップ ON になった瞬間にタイピング中なら即完了させる */
-  if (GS.skipMode && GS.isTyping) {
-    _stopTyping();
-    const textEl   = $('msg-text');
-    const fullText  = textEl.dataset.full || '';
-    const cursor    = document.createElement('span');
-    cursor.className = 'msg-cursor';
-    textEl.innerHTML = fullText.replace(/\n/g, '<br>');
-    textEl.appendChild(cursor);
-    $('next-indicator').classList.add('visible');
+  if (GS.skipMode) {
+    /* タイピング中なら即完了させる */
+    if (GS.isTyping) {
+      _stopTyping();
+      const textEl  = $('msg-text');
+      const fullText = textEl.dataset.full || '';
+      const cursor  = document.createElement('span');
+      cursor.className = 'msg-cursor';
+      textEl.innerHTML = fullText.replace(/\n/g, '<br>');
+      textEl.appendChild(cursor);
+      $('next-indicator').classList.add('visible');
+    }
+    /* タイピング済みでタップ待ち中でも必ず自動送りを開始 */
     scheduleAuto();
   }
 }
@@ -395,9 +398,10 @@ function scheduleAuto() {
   const delay = GS.skipMode ? 50 : 2200;
   GS.autoTimer = setTimeout(() => {
     if ($('choice-overlay').classList.contains('visible')) return;
-    if (GS.pendingNext) {
-      processNode(GS.pendingNext);
-      GS.pendingNext = null;
+    const next = GS.pendingNext;
+    if (next) {
+      GS.pendingNext = null; // processNode より先にクリアする
+      processNode(next);
     }
   }, delay);
 }

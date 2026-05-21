@@ -413,16 +413,27 @@ html, body {
   height: auto;
   object-fit: contain;
   object-position: bottom center;
-  filter: drop-shadow(0 4px 24px rgba(100, 0, 180, 0.35));
+  /* multiply で白背景を暗いゲーム背景に馴染ませる */
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 8px 32px rgba(80, 0, 140, 0.5));
   transition: opacity 0.18s ease, filter 0.4s ease, transform 0.4s ease;
   transform-origin: bottom center;
   display: block;
 }
 .char-sprite.hidden      { opacity: 0; pointer-events: none; }
-.char-sprite.expr-happy      { filter: drop-shadow(0 4px 28px rgba(255, 105, 180, 0.45)) brightness(1.04); }
-.char-sprite.expr-surprised  { transform: scale(1.015); filter: drop-shadow(0 4px 24px rgba(100, 0, 180, 0.4)); }
-.char-sprite.expr-tired      { filter: drop-shadow(0 4px 16px rgba(80, 80, 130, 0.3)) brightness(0.88); }
-.char-sprite.expr-intense    { filter: drop-shadow(0 4px 24px rgba(200, 0, 80, 0.5)) saturate(1.12); }
+.char-sprite.expr-happy      {
+  filter: drop-shadow(0 8px 36px rgba(255, 105, 180, 0.6)) brightness(1.06);
+}
+.char-sprite.expr-surprised  {
+  transform: scale(1.015);
+  filter: drop-shadow(0 8px 32px rgba(100, 0, 180, 0.5));
+}
+.char-sprite.expr-tired      {
+  filter: drop-shadow(0 6px 20px rgba(60, 60, 120, 0.4)) brightness(0.85);
+}
+.char-sprite.expr-intense    {
+  filter: drop-shadow(0 8px 32px rgba(220, 0, 80, 0.6)) saturate(1.15);
+}
 
 /* フェード切り替えトランジション */
 .char-sprite.fading { opacity: 0; }

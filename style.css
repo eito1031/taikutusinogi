@@ -572,23 +572,33 @@ html, body {
 /* ---------- 選択肢 ---------- */
 .choice-overlay {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  inset: 0;
   z-index: 25;
-  padding: 12px;
-  background: linear-gradient(0deg, rgba(5,5,15,0.95) 0%, rgba(5,5,15,0.6) 70%, transparent 100%);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  /* score bar 分を上に、msg window 分を下に避ける */
+  padding: 56px 20px 200px;
+  background: rgba(5, 5, 15, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition);
-  padding-bottom: 20px;
 }
 .choice-overlay.visible {
   opacity: 1;
   pointer-events: all;
+}
+
+#choice-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .choice-title {
@@ -597,7 +607,8 @@ html, body {
   letter-spacing: 2px;
   color: var(--clr-text-dim);
   text-align: center;
-  margin-bottom: 4px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .choice-btn {
@@ -908,7 +919,7 @@ html, body {
 /* ---------- セーフエリア対応 ---------- */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .msg-window { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-  .choice-overlay { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  .choice-overlay { padding-bottom: calc(200px + env(safe-area-inset-bottom)); }
 }
 
 /* ---------- ランドスケープ対応 ---------- */

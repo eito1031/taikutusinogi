@@ -579,38 +579,23 @@ function _switchSprite(img, src, expr) {
    スコアバー更新
 -------------------------------------------------- */
 function updateScoreBar() {
-  const fill   = $('score-fill');
-  const numEl  = $('score-num');
-  const endEl  = $('score-end-label');
-  const s = GS.score;
-  const pct = Math.min(s / 60 * 100, 100);
+  const gaugeEl = $('hearts-gauge');
+  if (!gaugeEl) return;
 
-  fill.style.width = pct + '%';
-  numEl.textContent = s + ' / 60';
+  const filled = Math.min(Math.floor(GS.score / 12), 5);
+  const hearts = gaugeEl.querySelectorAll('.heart-icon');
 
-  /* スコアレンジで色変化 */
-  fill.classList.remove('range-0','range-1','range-2','range-3','range-4');
-  if (s <= 20) {
-    fill.classList.add('range-0');
-    endEl.style.color = '#4488cc';
-    endEl.textContent = '❌ Bad END';
-  } else if (s <= 37) {
-    fill.classList.add('range-1');
-    endEl.style.color = '#778899';
-    endEl.textContent = '❌ Bad END';
-  } else if (s <= 47) {
-    fill.classList.add('range-2');
-    endEl.style.color = '#9b4fbd';
-    endEl.textContent = '🔄 Normal END';
-  } else if (s <= 56) {
-    fill.classList.add('range-3');
-    endEl.style.color = '#c02060';
-    endEl.textContent = '🤝 Good END';
-  } else {
-    fill.classList.add('range-4');
-    endEl.style.color = '#ff69b4';
-    endEl.textContent = '👑 Happy END';
-  }
+  hearts.forEach((h, i) => {
+    const wasFilled = h.classList.contains('filled');
+    const shouldFill = i < filled;
+    h.textContent = shouldFill ? '❤' : '♡';
+    if (shouldFill && !wasFilled) {
+      h.classList.add('filled', 'pulse');
+      setTimeout(() => h.classList.remove('pulse'), 400);
+    } else if (!shouldFill) {
+      h.classList.remove('filled', 'pulse');
+    }
+  });
 }
 
 /* --------------------------------------------------

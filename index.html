@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="飼育論">
+  <meta name="description" content="退屈しのぎの飼育論 - ダーク乙女ゲーム">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./style.css">
+  <title>退屈しのぎの飼育論</title>
+</head>
+<body>
+
+<!-- ===== タイトル画面 ===== -->
+<div id="screen-title" class="screen">
+  <div class="title-bg-particles"></div>
+
+  <div class="title-content">
+    <div class="title-sub">DARK OTOME VISUAL NOVEL</div>
+
+    <h1 class="title-main">退屈しのぎの<br>飼育論</h1>
+
+    <div class="title-chapter">Chapter 1</div>
+    <div class="title-divider"></div>
+    <p class="title-tagline">「こんな面白いおもちゃ、<br>他の誰かに渡すの勿体ないしね」</p>
+
+    <div class="title-btn-group">
+      <button class="btn btn-primary" id="btn-new-game">▶ はじめから</button>
+      <button class="btn btn-ghost"   id="btn-title-load">続きから</button>
+      <button class="btn btn-ghost"   id="btn-title-settings">設定</button>
+    </div>
+  </div>
+
+  <div class="title-version">退屈しのぎの飼育論 v1.0</div>
+</div>
+
+
+<!-- ===== 名前入力画面 ===== -->
+<div id="screen-name-input" class="screen">
+  <div class="name-input-card">
+    <div class="name-input-title">あなたの名前は？</div>
+    <p class="name-input-sub">
+      えいとが呼ぶ名前を入力してください。<br>
+      例）まな と入力すると「まなちゃん」と呼ばれます。
+    </p>
+
+    <input
+      type="text"
+      id="name-input-field"
+      class="name-field"
+      maxlength="8"
+      placeholder="名前を入力"
+      autocomplete="off"
+      spellcheck="false"
+    >
+
+    <div id="name-preview" class="name-preview">名前を入力してください</div>
+
+    <button class="btn btn-primary" id="btn-name-confirm">決定</button>
+  </div>
+</div>
+
+
+<!-- ===== ゲーム画面 ===== -->
+<div id="screen-game" class="screen">
+
+  <!-- スコアバー -->
+  <div class="score-bar">
+    <div class="score-bar-label">SCORE</div>
+    <div class="score-track">
+      <div id="score-fill" class="score-fill range-0" style="width:0%"></div>
+    </div>
+    <div id="score-num" class="score-num">0 / 60</div>
+    <div id="score-end-label" class="score-end-label" style="color:#4488cc">❌ Bad END</div>
+  </div>
+
+  <!-- 背景 -->
+  <div id="game-bg" class="game-bg bg-bedroom"></div>
+
+  <!-- 雨エフェクト -->
+  <div id="rain-overlay" class="rain-overlay"></div>
+
+  <!-- キャラクター表示 -->
+  <div class="char-area">
+    <svg id="char-sprite" class="char-sprite" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 560">
+      <!-- 全体グロー -->
+      <defs>
+        <radialGradient id="glow-grad" cx="50%" cy="60%" r="50%">
+          <stop offset="0%" stop-color="#9b4fbd" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#9b4fbd" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="soft-shadow">
+          <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#00000088"/>
+        </filter>
+      </defs>
+      <ellipse cx="150" cy="560" rx="110" ry="12" fill="rgba(0,0,0,0.35)"/>
+
+      <!-- 脚 -->
+      <rect x="95"  y="390" width="48" height="165" rx="16" fill="#0d0d1e" filter="url(#soft-shadow)"/>
+      <rect x="157" y="390" width="48" height="165" rx="16" fill="#0d0d1e"/>
+
+      <!-- スーツ本体 -->
+      <path d="M55,205 Q60,400 65,555 L235,555 Q240,400 245,205 Q200,188 150,186 Q100,188 55,205Z"
+            fill="#14142a" filter="url(#soft-shadow)"/>
+
+      <!-- シャツ -->
+      <path d="M112,192 L150,238 L188,192 L178,182 L150,210 L122,182Z" fill="#e8e8f0"/>
+
+      <!-- スーツ左ラペル -->
+      <path d="M112,192 L88,268 L130,288 L150,238Z" fill="#1a1a36"/>
+      <!-- スーツ右ラペル -->
+      <path d="M188,192 L212,268 L170,288 L150,238Z" fill="#1a1a36"/>
+
+      <!-- タイ -->
+      <path d="M143,206 L157,206 L162,290 L150,308 L138,290Z" fill="#7b2d8b"/>
+      <polygon points="143,206 157,206 153,218 150,215 147,218" fill="#5a1a6a"/>
+
+      <!-- 左腕 -->
+      <rect x="28" y="210" width="50" height="200" rx="22" fill="#14142a"/>
+      <!-- 右腕 -->
+      <rect x="222" y="210" width="50" height="200" rx="22" fill="#14142a"/>
+
+      <!-- 袖口 左 -->
+      <rect x="31" y="392" width="44" height="18" rx="9" fill="#1c1c3a"/>
+      <!-- 袖口 右 -->
+      <rect x="225" y="392" width="44" height="18" rx="9" fill="#1c1c3a"/>
+
+      <!-- 左手 -->
+      <ellipse cx="53"  cy="422" rx="24" ry="18" fill="#f0d0b0"/>
+      <!-- 右手 -->
+      <ellipse cx="247" cy="422" rx="24" ry="18" fill="#f0d0b0"/>
+
+      <!-- ポケットチーフ -->
+      <path d="M76,255 L92,260 L90,275 L74,270Z" fill="#9b4fbd" opacity="0.9"/>
+
+      <!-- 首 -->
+      <rect x="132" y="165" width="36" height="32" rx="10" fill="#f0d0b0"/>
+
+      <!-- 頭（ベース） -->
+      <ellipse cx="150" cy="120" rx="62" ry="68" fill="#f0d0b0"/>
+
+      <!-- 髪（後ろ） -->
+      <ellipse cx="150" cy="72" rx="66" ry="46" fill="#1a1210"/>
+      <!-- 髪（横） -->
+      <ellipse cx="88"  cy="118" rx="22" ry="35" fill="#1a1210"/>
+      <ellipse cx="212" cy="118" rx="22" ry="35" fill="#1a1210"/>
+
+      <!-- 髪（前・前髪） -->
+      <path d="M88,95 Q100,48 150,44 Q200,48 212,95
+               Q196,75 182,82 Q166,58 150,76 Q134,58 118,82 Q104,75 88,95Z"
+            fill="#1a1210"/>
+      <path d="M118,82 Q126,98 136,90" stroke="#1a1210" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M182,82 Q174,98 164,90" stroke="#1a1210" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+      <!-- 耳 -->
+      <ellipse cx="88"  cy="128" rx="12" ry="16" fill="#ead0a8"/>
+      <ellipse cx="212" cy="128" rx="12" ry="16" fill="#ead0a8"/>
+
+      <!-- 眉毛 -->
+      <path id="brow-l" d="M106,104 Q122,97 136,102" stroke="#1a1210" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path id="brow-r" d="M164,102 Q178,97 194,104" stroke="#1a1210" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+      <!-- 目（左） -->
+      <ellipse cx="121" cy="122" rx="13" ry="12" fill="#0f0c0a"/>
+      <ellipse cx="121" cy="121" rx="7"  ry="6"  fill="#2e1c3a"/>
+      <circle  cx="125" cy="117" r="4"   fill="white" opacity="0.85"/>
+      <circle  cx="123" cy="119" r="1.5" fill="white" opacity="0.5"/>
+      <!-- 瞼ライン左 -->
+      <path d="M108,116 Q121,109 134,116" stroke="#1a1210" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- 目（右） -->
+      <ellipse cx="179" cy="122" rx="13" ry="12" fill="#0f0c0a"/>
+      <ellipse cx="179" cy="121" rx="7"  ry="6"  fill="#2e1c3a"/>
+      <circle  cx="183" cy="117" r="4"   fill="white" opacity="0.85"/>
+      <circle  cx="181" cy="119" r="1.5" fill="white" opacity="0.5"/>
+      <!-- 瞼ライン右 -->
+      <path d="M166,116 Q179,109 192,116" stroke="#1a1210" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- 鼻 -->
+      <path d="M146,148 Q150,156 154,148" stroke="#c4a080" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+      <!-- 口（ニヤリ） -->
+      <path id="mouth" d="M132,167 Q147,176 164,168"
+            stroke="#9a6050" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+
+      <!-- 全体グロー -->
+      <ellipse cx="150" cy="350" rx="150" ry="280" fill="url(#glow-grad)"/>
+    </svg>
+  </div><!-- /char-area -->
+
+  <!-- コントロールボタン -->
+  <div class="ctrl-buttons">
+    <button class="ctrl-btn" id="btn-auto">AUTO</button>
+    <button class="ctrl-btn" id="btn-skip">SKIP</button>
+    <button class="ctrl-btn" id="btn-log">LOG</button>
+    <button class="ctrl-btn" id="btn-save">SAVE</button>
+    <button class="ctrl-btn" id="btn-menu">MENU</button>
+  </div>
+
+  <!-- メッセージウィンドウ -->
+  <div class="msg-window">
+    <div class="msg-box" id="msg-box">
+      <div id="speaker-name" class="speaker-name speaker-narrator"></div>
+      <div id="msg-text" class="msg-text narrator-style"></div>
+      <div id="next-indicator" class="next-indicator"></div>
+    </div>
+  </div>
+
+  <!-- 選択肢オーバーレイ -->
+  <div class="choice-overlay" id="choice-overlay">
+    <div class="choice-title" id="choice-title">選択してください</div>
+    <div id="choice-buttons"></div>
+  </div>
+
+</div><!-- /screen-game -->
+
+
+<!-- ===== セーブ画面 ===== -->
+<div id="screen-save" class="screen">
+  <div class="sub-screen-header">
+    <button class="icon-btn" id="btn-back-save">←</button>
+    <div class="sub-screen-title">SAVE</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="save-slots" id="save-slot-container"></div>
+</div>
+
+
+<!-- ===== ロード画面 ===== -->
+<div id="screen-load" class="screen">
+  <div class="sub-screen-header">
+    <button class="icon-btn" id="btn-back-load">←</button>
+    <div class="sub-screen-title">LOAD</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="save-slots" id="load-slot-container"></div>
+</div>
+
+
+<!-- ===== テキストログ画面 ===== -->
+<div id="screen-log" class="screen">
+  <div class="sub-screen-header">
+    <button class="icon-btn" id="btn-back-log">←</button>
+    <div class="sub-screen-title">TEXT LOG</div>
+    <div style="width:36px"></div>
+  </div>
+  <div class="log-entries" id="log-entries"></div>
+</div>
+
+
+<!-- ===== 設定画面 ===== -->
+<div id="screen-settings" class="screen">
+  <div class="sub-screen-header">
+    <button class="icon-btn" id="btn-back-settings">←</button>
+    <div class="sub-screen-title">SETTINGS</div>
+    <div style="width:36px"></div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">テキスト</div>
+
+    <div class="settings-row">
+      <div class="settings-row-label">文字送り速度</div>
+      <input type="range" id="speed-slider" class="slider" min="10" max="90" value="65">
+      <div class="settings-row-value" id="speed-val">65</div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">プレイヤー</div>
+    <div class="settings-row">
+      <div class="settings-row-label">あなたの名前</div>
+      <div class="settings-row-value" id="settings-current-name">─</div>
+    </div>
+    <button class="btn btn-ghost" id="btn-change-name" style="margin-top:12px;width:100%">名前を変更する</button>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">データ</div>
+    <button class="btn btn-ghost" id="btn-title-from-settings"
+            onclick="showScreen('title')" style="width:100%">タイトルに戻る</button>
+  </div>
+</div>
+
+
+<!-- ===== エンディング画面 ===== -->
+<div id="screen-ending" class="screen">
+  <div id="game-bg-ending" class="game-bg bg-ending-bad" style="z-index:0"></div>
+
+  <div class="ending-container">
+    <div id="ending-label" class="ending-label">❌ Bad END</div>
+    <div id="ending-title" class="ending-title">─</div>
+
+    <div class="ending-score-display">
+      <div class="ending-score-label">FINAL SCORE</div>
+      <div id="ending-score-num" class="ending-score-num">0 pt</div>
+    </div>
+
+    <div class="ending-divider"></div>
+
+    <div id="ending-text" class="ending-text"></div>
+
+    <div class="ending-btn-group">
+      <button class="btn btn-primary" id="btn-ending-retry">もう一度プレイする</button>
+      <button class="btn btn-ghost"   id="btn-ending-title">タイトルへ戻る</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== フェードオーバーレイ ===== -->
+<div class="fade-overlay" id="fade-overlay"></div>
+
+<script src="./app.js"></script>
+</body>
+</html>

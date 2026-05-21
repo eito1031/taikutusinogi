@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#0a0a0f"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#7b2d8b" stroke-width="3" opacity="0.6"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#ff69b4" stroke-width="1.5" opacity="0.35"/>
+  <circle cx="256" cy="256" r="120" fill="none" stroke="#9b4fbd" stroke-width="1" opacity="0.2"/>
+  <text x="256" y="312" font-family="serif" font-size="180" fill="#c060a0" text-anchor="middle" opacity="0.9">飼</text>
+  <text x="256" y="370" font-family="sans-serif" font-size="28" fill="#ff69b4" text-anchor="middle" letter-spacing="6" opacity="0.7">退屈しのぎの</text>
+  <text x="256" y="400" font-family="sans-serif" font-size="20" fill="#9b4fbd" text-anchor="middle" letter-spacing="4" opacity="0.5">飼育論</text>
+</svg>

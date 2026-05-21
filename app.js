@@ -354,10 +354,11 @@ function showChoices(node) {
   $('speaker-name').textContent = '';
   $('next-indicator').classList.remove('visible');
 
-  node.choices.forEach((choice, idx) => {
+  const shuffled = [...node.choices].sort(() => Math.random() - 0.5);
+  shuffled.forEach((choice, idx) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
-    btn.innerHTML = `<span class="choice-label">${choice.label}</span>${escHtml(processText(choice.text))}`;
+    btn.innerHTML = `<span class="choice-label">${idx + 1}</span>${escHtml(processText(choice.text))}`;
     btn.addEventListener('click', () => makeChoice(choice));
     container.appendChild(btn);
 
@@ -520,7 +521,7 @@ function updateScoreBar() {
   hearts.forEach((h, i) => {
     const wasFilled = h.classList.contains('filled');
     const shouldFill = i < filled;
-    h.textContent = shouldFill ? '❤' : '♡';
+    h.textContent = shouldFill ? '♥' : '♡';
     if (shouldFill && !wasFilled) {
       h.classList.add('filled', 'pulse');
       setTimeout(() => h.classList.remove('pulse'), 400);
